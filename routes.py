@@ -101,6 +101,7 @@ def edit_reservation(id):
     reserva = Reserva.query.get_or_404(id)
     form = ReservaForm(obj=reserva)
     
+
     if form.validate_on_submit():
         # Handle promotional code changes
         descuento = reserva.descuento
