@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin - NauticBooking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('admin.import_excel') }}" class="btn btn-success">
+            <i class="fas fa-file-excel me-2"></i>Importar Excel
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-info">
+            <i class="fas fa-chart-bar me-2"></i>Reportes
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Reservas</h6>
+                        <h3 class="card-text">{{ total_reservations }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Ingresos Totales</h6>
+                        <h3 class="card-text">€{{ "%.2f"|format(total_revenue) }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-euro-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Pagado</h6>
+                        <h3 class="card-text">€{{ "%.2f"|format(total_paid) }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Balance Pendiente</h6>
+                        <h3 class="card-text">€{{ "%.2f"|format(pending_balance) }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>Próximos Check-ins
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_checkins %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Barco</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in upcoming_checkins %}
+                                <tr>
+                                    <td>{{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ reserva.cliente }}</td>
+                                    <td>{{ reserva.barco }}</td>
+                                    <td>€{{ "%.2f"|format(reserva.precio_total) }}</td>
+                                    <td>
+                                        {% if reserva.balance_pendiente <= 0 %}
+                                            <span class="badge bg-success">Pagado</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pendiente</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay check-ins programados próximamente.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Ingresos Mensuales
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>Reservas Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_reservations %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Fecha Creación</th>
+                                    <th>Cliente</th>
+                                    <th>Barco</th>
+                                    <th>Check-in</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in recent_reservations %}
+                                <tr>
+                                    <td>{{ reserva.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ reserva.cliente }}</td>
+                                    <td>{{ reserva.barco }}</td>
+                                    <td>{{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}</td>
+                                    <td>€{{ "%.2f"|format(reserva.precio_total) }}</td>
+                                    <td>
+                                        {% if reserva.balance_pendiente <= 0 %}
+                                            <span class="badge bg-success">Pagado</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pendiente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('main.view_reservation', id=reserva.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay reservas recientes.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const monthlyData = {{ monthly_revenue|tojson }};
+    
+    const labels = monthlyData.map(item => item[0]);
+    const revenues = monthlyData.map(item => item[1]);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ingresos (€)',
+                data: revenues,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '€' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Ingresos: €' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

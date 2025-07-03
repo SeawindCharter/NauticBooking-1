@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Reservas - NauticBooking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-calendar-alt me-2"></i>Reservas</h1>
+    <a href="{{ url_for('main.create_reservation') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Nueva Reserva
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search_term" 
+                       placeholder="Buscar..." value="{{ search_term or '' }}">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="search_type">
+                    <option value="cliente" {% if search_type == 'cliente' %}selected{% endif %}>Cliente</option>
+                    <option value="barco" {% if search_type == 'barco' %}selected{% endif %}>Barco</option>
+                    <option value="codigo_promocional" {% if search_type == 'codigo_promocional' %}selected{% endif %}>Código Promocional</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search me-2"></i>Buscar
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('main.reservations') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if reservations.items %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Barco</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Duración</th>
+                            <th>Precio Total</th>
+                            <th>Pagado</th>
+                            <th>Balance</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reserva in reservations.items %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>{{ reserva.cliente }}</strong>
+                                    {% if reserva.email_cliente %}
+                                        <br><small class="text-muted">{{ reserva.email_cliente }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ reserva.barco }}</td>
+                            <td>{{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ reserva.fecha_checkout.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ reserva.duracion_dias }} días</td>
+                            <td>€{{ "%.2f"|format(reserva.precio_total) }}</td>
+                            <td>€{{ "%.2f"|format(reserva.total_pagado) }}</td>
+                            <td>€{{ "%.2f"|format(reserva.balance_pendiente) }}</td>
+                            <td>
+                                {% if reserva.balance_pendiente <= 0 %}
+                                    <span class="badge bg-success">Pagado</span>
+                                {% elif reserva.balance_pendiente < reserva.precio_total %}
+                                    <span class="badge bg-warning">Parcial</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('main.view_reservation', id=reserva.id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('main.edit_reservation', id=reserva.id) }}" 
+                                       class="btn btn-sm btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('main.delete_reservation', id=reserva.id) }}" 
+                                          class="d-inline" onsubmit="return confirm('¿Está seguro de que desea eliminar esta reserva?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if reservations.pages > 1 %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if reservations.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.reservations', page=reservations.prev_num, search_term=search_term, search_type=search_type) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in reservations.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != reservations.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('main.reservations', page=page_num, search_term=search_term, search_type=search_type) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if reservations.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.reservations', page=reservations.next_num, search_term=search_term, search_type=search_type) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5>No se encontraron reservas</h5>
+                {% if search_term %}
+                    <p class="text-muted">No hay reservas que coincidan con tu búsqueda</p>
+                    <a href="{{ url_for('main.reservations') }}" class="btn btn-secondary">
+                        Ver Todas las Reservas
+                    </a>
+                {% else %}
+                    <p class="text-muted">Aún no hay reservas registradas</p>
+                    <a href="{{ url_for('main.create_reservation') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Crear Primera Reserva
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
