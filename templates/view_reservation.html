@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Reserva - {{ reserva.cliente }} - NauticBooking{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-eye me-2"></i>Detalles de Reserva</h1>
+            <div class="btn-group">
+                <a href="{{ url_for('main.edit_reservation', id=reserva.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>Editar
+                </a>
+                <a href="{{ url_for('main.reservations') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Cliente Information -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user me-2"></i>Información del Cliente
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Nombre:</label>
+                                <p class="mb-2">{{ reserva.cliente }}</p>
+                            </div>
+                            {% if reserva.email_cliente %}
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Email:</label>
+                                <p class="mb-2">
+                                    <a href="mailto:{{ reserva.email_cliente }}" class="text-decoration-none">
+                                        {{ reserva.email_cliente }}
+                                    </a>
+                                </p>
+                            </div>
+                            {% endif %}
+                            {% if reserva.telefono_cliente %}
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Teléfono:</label>
+                                <p class="mb-2">
+                                    <a href="tel:{{ reserva.telefono_cliente }}" class="text-decoration-none">
+                                        {{ reserva.telefono_cliente }}
+                                    </a>
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Details -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-ship me-2"></i>Detalles de la Reserva
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Barco:</label>
+                                <p class="mb-2">{{ reserva.barco }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Check-in:</label>
+                                <p class="mb-2">{{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}</p>
+                                {% if reserva.hora_inicio %}
+                                <small class="text-muted">{{ reserva.hora_inicio.strftime('%H:%M') }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">Check-out:</label>
+                                <p class="mb-2">{{ reserva.fecha_checkout.strftime('%d/%m/%Y') }}</p>
+                                {% if reserva.hora_finalizacion %}
+                                <small class="text-muted">{{ reserva.hora_finalizacion.strftime('%H:%M') }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Duración:</label>
+                                <p class="mb-2">
+                                    <span class="badge bg-info">{{ reserva.duracion_dias }} días</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-calculator me-2"></i>Balance General de Costos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Precio Base</h6>
+                                    <h4 class="text-primary">€{{ "%.2f"|format(reserva.precio_total) }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Extras Facturados</h6>
+                                    <h4 class="text-info">€{{ "%.2f"|format(reserva.extras_facturados or 0) }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Total con Extras</h6>
+                                    <h4 class="text-warning">€{{ "%.2f"|format(reserva.costo_total_con_extras) }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">APA</h6>
+                                    <h4 class="text-secondary">€{{ "%.2f"|format(reserva.apa or 0) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Total Pagado</h6>
+                                    <h4 class="text-success">€{{ "%.2f"|format(reserva.total_pagado) }}</h4>
+                                    <small class="text-muted">
+                                        Pago A: €{{ "%.2f"|format(reserva.pago_a or 0) }}<br>
+                                        Pago B: €{{ "%.2f"|format(reserva.pago_b or 0) }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Balance Pendiente</h6>
+                                    <h4 class="{% if reserva.balance_total_pendiente <= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        €{{ "%.2f"|format(reserva.balance_total_pendiente) }}
+                                    </h4>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h6 class="text-muted mb-1">Estado de Pago</h6>
+                                    {% if reserva.balance_total_pendiente <= 0 %}
+                                        <span class="badge bg-success fs-6">Completamente Pagado</span>
+                                    {% elif reserva.total_pagado > 0 %}
+                                        <span class="badge bg-warning fs-6">Pago Parcial</span>
+                                    {% else %}
+                                        <span class="badge bg-danger fs-6">Pendiente de Pago</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if reserva.descuento > 0 %}
+                        <hr class="my-3">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-success">
+                                    <i class="fas fa-tag me-2"></i>
+                                    <strong>Descuento aplicado:</strong> €{{ "%.2f"|format(reserva.descuento) }}
+                                    {% if reserva.codigo_promocional %}
+                                    (Código: {{ reserva.codigo_promocional }})
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extras and Observations -->
+            {% if reserva.extras or reserva.observaciones %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-sticky-note me-2"></i>Extras y Observaciones
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if reserva.extras %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Extras:</label>
+                            <p class="mb-2">{{ reserva.extras }}</p>
+                        </div>
+                        {% endif %}
+                        {% if reserva.observaciones %}
+                        <div class="mb-0">
+                            <label class="form-label fw-bold">Observaciones:</label>
+                            <p class="mb-0">{{ reserva.observaciones }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Metadata -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Información del Sistema
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Creada:</strong> {{ reserva.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Última actualización:</strong> {{ reserva.updated_at.strftime('%d/%m/%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

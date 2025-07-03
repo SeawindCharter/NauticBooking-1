@@ -84,6 +84,26 @@
                             {% endif %}
                         </div>
                         
+                        <div class="col-md-3">
+                            {{ form.hora_inicio.label(class="form-label") }}
+                            {{ form.hora_inicio(class="form-control" + (" is-invalid" if form.hora_inicio.errors else "")) }}
+                            {% if form.hora_inicio.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.hora_inicio.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-3">
+                            {{ form.hora_finalizacion.label(class="form-label") }}
+                            {{ form.hora_finalizacion(class="form-control" + (" is-invalid" if form.hora_finalizacion.errors else "")) }}
+                            {% if form.hora_finalizacion.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.hora_finalizacion.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
                         <!-- Pricing -->
                         <div class="col-12 mt-4">
                             <h5 class="text-primary mb-3">Precios y Pagos</h5>

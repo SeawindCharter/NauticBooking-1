@@ -24,6 +24,8 @@ class Reserva(db.Model):
     barco = db.Column(db.String(100), nullable=False)
     fecha_checkin = db.Column(db.DateTime, nullable=False)
     fecha_checkout = db.Column(db.DateTime, nullable=False)
+    hora_inicio = db.Column(db.Time, default=datetime.strptime('10:00', '%H:%M').time())
+    hora_finalizacion = db.Column(db.Time, default=datetime.strptime('18:00', '%H:%M').time())
     precio_total = db.Column(db.Float, nullable=False)
     pago_a = db.Column(db.Float, default=0.0)
     pago_b = db.Column(db.Float, default=0.0)
@@ -47,6 +49,14 @@ class Reserva(db.Model):
     @property
     def duracion_dias(self):
         return (self.fecha_checkout - self.fecha_checkin).days
+    
+    @property
+    def costo_total_con_extras(self):
+        return self.precio_total + (self.extras_facturados or 0)
+    
+    @property
+    def balance_total_pendiente(self):
+        return self.costo_total_con_extras - self.total_pagado
     
     def __repr__(self):
         return f'<Reserva {self.cliente} - {self.barco}>'

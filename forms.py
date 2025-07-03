@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, TextAreaField, FloatField, DateField, SelectField, PasswordField, BooleanField
+from wtforms import StringField, TextAreaField, FloatField, DateField, TimeField, SelectField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, Optional, NumberRange, Length, ValidationError
-from datetime import datetime
+from datetime import datetime, time
 from models import CodigoPromocional
 
 class LoginForm(FlaskForm):
@@ -26,6 +26,8 @@ class ReservaForm(FlaskForm):
     ], validators=[DataRequired()])
     fecha_checkin = DateField('Fecha de Check-in', validators=[DataRequired()])
     fecha_checkout = DateField('Fecha de Check-out', validators=[DataRequired()])
+    hora_inicio = TimeField('Hora de Inicio', validators=[Optional()], default=time(10, 0))
+    hora_finalizacion = TimeField('Hora de Finalización', validators=[Optional()], default=time(18, 0))
     precio_total = FloatField('Precio Total (€)', validators=[DataRequired(), NumberRange(min=0)])
     pago_a = FloatField('Pago A (€)', validators=[Optional(), NumberRange(min=0)], default=0)
     pago_b = FloatField('Pago B (€)', validators=[Optional(), NumberRange(min=0)], default=0)

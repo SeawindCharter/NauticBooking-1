@@ -50,7 +50,7 @@
                             <th>Check-in</th>
                             <th>Check-out</th>
                             <th>Duración</th>
-                            <th>Precio Total</th>
+                            <th>Costo Total</th>
                             <th>Pagado</th>
                             <th>Balance</th>
                             <th>Estado</th>
@@ -69,16 +69,31 @@
                                 </div>
                             </td>
                             <td>{{ reserva.barco }}</td>
-                            <td>{{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ reserva.fecha_checkout.strftime('%d/%m/%Y') }}</td>
-                            <td>{{ reserva.duracion_dias }} días</td>
-                            <td>€{{ "%.2f"|format(reserva.precio_total) }}</td>
-                            <td>€{{ "%.2f"|format(reserva.total_pagado) }}</td>
-                            <td>€{{ "%.2f"|format(reserva.balance_pendiente) }}</td>
                             <td>
-                                {% if reserva.balance_pendiente <= 0 %}
+                                {{ reserva.fecha_checkin.strftime('%d/%m/%Y') }}
+                                {% if reserva.hora_inicio %}
+                                    <br><small class="text-muted">{{ reserva.hora_inicio.strftime('%H:%M') }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ reserva.fecha_checkout.strftime('%d/%m/%Y') }}
+                                {% if reserva.hora_finalizacion %}
+                                    <br><small class="text-muted">{{ reserva.hora_finalizacion.strftime('%H:%M') }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ reserva.duracion_dias }} días</td>
+                            <td>
+                                €{{ "%.2f"|format(reserva.costo_total_con_extras) }}
+                                {% if reserva.extras_facturados > 0 %}
+                                    <br><small class="text-muted">Base: €{{ "%.2f"|format(reserva.precio_total) }}</small>
+                                {% endif %}
+                            </td>
+                            <td>€{{ "%.2f"|format(reserva.total_pagado) }}</td>
+                            <td>€{{ "%.2f"|format(reserva.balance_total_pendiente) }}</td>
+                            <td>
+                                {% if reserva.balance_total_pendiente <= 0 %}
                                     <span class="badge bg-success">Pagado</span>
-                                {% elif reserva.balance_pendiente < reserva.precio_total %}
+                                {% elif reserva.total_pagado > 0 %}
                                     <span class="badge bg-warning">Parcial</span>
                                 {% else %}
                                     <span class="badge bg-danger">Pendiente</span>

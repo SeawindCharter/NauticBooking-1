@@ -75,6 +75,8 @@ def create_reservation():
             barco=form.barco.data,
             fecha_checkin=form.fecha_checkin.data,
             fecha_checkout=form.fecha_checkout.data,
+            hora_inicio=form.hora_inicio.data,
+            hora_finalizacion=form.hora_finalizacion.data,
             precio_total=form.precio_total.data,
             pago_a=form.pago_a.data or 0,
             pago_b=form.pago_b.data or 0,
@@ -111,12 +113,15 @@ def edit_reservation(id):
                 codigo.usos_actuales += 1
                 db.session.commit()
         
+        # Update all fields
         reserva.cliente = form.cliente.data
         reserva.email_cliente = form.email_cliente.data
         reserva.telefono_cliente = form.telefono_cliente.data
         reserva.barco = form.barco.data
         reserva.fecha_checkin = form.fecha_checkin.data
         reserva.fecha_checkout = form.fecha_checkout.data
+        reserva.hora_inicio = form.hora_inicio.data or reserva.hora_inicio
+        reserva.hora_finalizacion = form.hora_finalizacion.data or reserva.hora_finalizacion
         reserva.precio_total = form.precio_total.data
         reserva.pago_a = form.pago_a.data or 0
         reserva.pago_b = form.pago_b.data or 0
@@ -127,6 +132,9 @@ def edit_reservation(id):
         reserva.extras_facturados = form.extras_facturados.data or 0
         reserva.observaciones = form.observaciones.data
         reserva.updated_at = datetime.utcnow()
+        
+        # Explicitly add to session to ensure tracking
+        db.session.add(reserva)
         
         db.session.commit()
         
