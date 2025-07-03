@@ -99,9 +99,18 @@ def create_reservation():
 @main_bp.route('/reservation/<int:id>/edit', methods=['GET', 'POST'])
 def edit_reservation(id):
     reserva = Reserva.query.get_or_404(id)
-    form = ReservaForm(obj=reserva)
     
-
+    # Always populate form with current reservation data first
+    if request.method == 'GET':
+        form = ReservaForm(obj=reserva)
+        # Manually set date fields to avoid datetime issues
+        if reserva.fecha_checkin:
+            form.fecha_checkin.data = reserva.fecha_checkin.date()
+        if reserva.fecha_checkout:
+            form.fecha_checkout.data = reserva.fecha_checkout.date()
+    else:
+        form = ReservaForm()
+    
     if form.validate_on_submit():
         # Handle promotional code changes
         descuento = reserva.descuento
