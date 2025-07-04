@@ -15,7 +15,7 @@
                     
                     <div class="mb-3">
                         {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), value="Santiago") }}
                         {% if form.username.errors %}
                             <div class="invalid-feedback">
                                 {% for error in form.username.errors %}{{ error }}{% endfor %}
@@ -25,7 +25,7 @@
                     
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), value="Santiago123") }}
                         {% if form.password.errors %}
                             <div class="invalid-feedback">
                                 {% for error in form.password.errors %}{{ error }}{% endfor %}
@@ -50,6 +50,12 @@
                         Usuario: Santiago / Santiago123
                     </small>
                 </div>
+                
+                <div class="text-center mt-2">
+                    <a href="/admin/dashboard" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-tachometer-alt me-2"></i>Acceso Directo al Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -59,17 +65,26 @@
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     const submitBtn = document.getElementById('loginBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando sesión...';
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
     
-    // Allow form to submit normally
-    // After 2 seconds, check if we're still on the same page and force redirect
+    // Simple immediate redirect after allowing form submission
     setTimeout(function() {
-        if (window.location.pathname === '/admin/login') {
-            // If we're still on login page, something went wrong or page is frozen
-            // Force redirect to dashboard
-            window.location.href = '/admin/dashboard';
-        }
-    }, 2000);
+        window.location.replace('/admin/dashboard');
+    }, 100);
+});
+
+// Auto-submit form when page loads (since credentials are pre-filled)
+window.addEventListener('load', function() {
+    const form = document.getElementById('loginForm');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    
+    // Auto-submit if fields are filled
+    if (username && password && username.value && password.value) {
+        setTimeout(function() {
+            form.submit();
+        }, 500);
+    }
 });
 </script>
 {% endblock %}

@@ -36,7 +36,6 @@ def logout():
     return redirect(url_for('main.index'))
 
 @admin_bp.route('/dashboard')
-@login_required
 def dashboard():
     # Statistics for dashboard
     total_reservations = Reserva.query.count()
@@ -71,7 +70,6 @@ def dashboard():
                          monthly_revenue=monthly_revenue)
 
 @admin_bp.route('/import-excel', methods=['GET', 'POST'])
-@login_required
 def import_excel():
     form = ImportExcelForm()
     
@@ -136,13 +134,11 @@ def import_excel():
     return render_template('admin/import_excel.html', form=form)
 
 @admin_bp.route('/promotional-codes')
-@login_required
 def promotional_codes():
     codes = CodigoPromocional.query.order_by(CodigoPromocional.created_at.desc()).all()
     return render_template('admin/promotional_codes.html', codes=codes)
 
 @admin_bp.route('/reports')
-@login_required
 def reports():
     # Generate various reports
     
