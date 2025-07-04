@@ -16,12 +16,13 @@ def login():
         return redirect(url_for('admin.dashboard'))
     
     form = LoginForm()
+    
     if form.validate_on_submit():
         admin = Admin.query.filter_by(username=form.username.data).first()
         if admin and admin.check_password(form.password.data):
             login_user(admin, remember=form.remember_me.data)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('admin.dashboard'))
+            flash('Bienvenido al panel de administración', 'success')
+            return redirect(url_for('admin.dashboard'))
         flash('Usuario o contraseña incorrectos', 'error')
     
     return render_template('admin/login.html', form=form)
@@ -50,11 +51,14 @@ def dashboard():
         Reserva.fecha_checkin >= datetime.now()
     ).order_by(Reserva.fecha_checkin.asc()).limit(5).all()
     
-    # Monthly revenue data for chart
-    monthly_revenue = db.session.query(
-        db.func.strftime('%Y-%m', Reserva.fecha_checkin).label('month'),
+    # Monthly revenue data for chart - PostgreSQL compatible
+    monthly_revenue_query = db.session.query(
+        db.func.to_char(Reserva.fecha_checkin, 'YYYY-MM').label('month'),
         db.func.sum(Reserva.precio_total).label('revenue')
     ).group_by('month').order_by('month').all()
+    
+    # Convert to JSON serializable format
+    monthly_revenue = [{'month': row.month, 'revenue': float(row.revenue or 0)} for row in monthly_revenue_query]
     
     return render_template('admin/dashboard.html',
                          total_reservations=total_reservations,
