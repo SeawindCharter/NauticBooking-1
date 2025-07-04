@@ -43,11 +43,11 @@ search_type = request.args.get('search_type', 'cliente')
 
 if search_term:
 if search_type == 'cliente':
-query = query.filter(Reserva.cliente.contains(search_term))
+    query = query.filter(Reserva.cliente.contains(search_term))
 elif search_type == 'barco':
-query = query.filter(Reserva.barco.contains(search_term))
+    query = query.filter(Reserva.barco.contains(search_term))
 elif search_type == 'codigo_promocional':
-query = query.filter(Reserva.codigo_promocional.contains(search_term))
+    query = query.filter(Reserva.codigo_promocional.contains(search_term))
 
 reservations = query.order_by(
 Reserva.fecha_checkin.desc()
@@ -69,36 +69,36 @@ if form.validate_on_submit():
 # Aplicar descuento promocional si corresponde
 descuento = 0.0
 if form.codigo_promocional.data:
-codigo = CodigoPromocional.query.filter_by(
-codigo=form.codigo_promocional.data.upper()
-).first()
-if codigo and codigo.is_valid():
-descuento = codigo.calcular_descuento(form.precio_total.data)
-codigo.usos_actuales += 1
-db.session.commit()
+    codigo = CodigoPromocional.query.filter_by(
+        codigo=form.codigo_promocional.data.upper()
+    ).first()
+    if codigo and codigo.is_valid():
+        descuento = codigo.calcular_descuento(form.precio_total.data)
+        codigo.usos_actuales += 1
+        db.session.commit()
 
 # Crear la reserva
 reserva = Reserva(
-cliente=form.cliente.data,
-email_cliente=form.email_cliente.data,
-telefono_cliente=form.telefono_cliente.data,
-barco=form.barco.data,
-fecha_checkin=form.fecha_checkin.data,
-fecha_checkout=form.fecha_checkout.data,
-hora_inicio=form.hora_inicio.data,
-hora_finalizacion=form.hora_finalizacion.data,
-precio_total=form.precio_total.data,
-pago_a=form.pago_a.data or 0,
-pago_b=form.pago_b.data or 0,
-apa=form.apa.data or 0,
-codigo_promocional=(
-form.codigo_promocional.data.upper()
-if form.codigo_promocional.data else None
-),
-descuento=descuento,
-extras=form.extras.data,
-extras_facturados=form.extras_facturados.data or 0,
-observaciones=form.observaciones.data
+    cliente=form.cliente.data,
+    email_cliente=form.email_cliente.data,
+    telefono_cliente=form.telefono_cliente.data,
+    barco=form.barco.data,
+    fecha_checkin=form.fecha_checkin.data,
+    fecha_checkout=form.fecha_checkout.data,
+    hora_inicio=form.hora_inicio.data,
+    hora_finalizacion=form.hora_finalizacion.data,
+    precio_total=form.precio_total.data,
+    pago_a=form.pago_a.data or 0,
+    pago_b=form.pago_b.data or 0,
+    apa=form.apa.data or 0,
+    codigo_promocional=(
+        form.codigo_promocional.data.upper()
+        if form.codigo_promocional.data else None
+    ),
+    descuento=descuento,
+    extras=form.extras.data,
+    extras_facturados=form.extras_facturados.data or 0,
+    observaciones=form.observaciones.data
 )
 db.session.add(reserva)
 db.session.commit()
@@ -115,9 +115,9 @@ reserva = Reserva.query.get_or_404(id)
 if request.method == 'GET':
 form = ReservaForm(obj=reserva)
 if reserva.fecha_checkin:
-form.fecha_checkin.data = reserva.fecha_checkin.date()
+    form.fecha_checkin.data = reserva.fecha_checkin.date()
 if reserva.fecha_checkout:
-form.fecha_checkout.data = reserva.fecha_checkout.date()
+    form.fecha_checkout.data = reserva.fecha_checkout.date()
 else:
 form = ReservaForm()
 
@@ -127,15 +127,15 @@ reserva.email_cliente = form.email_cliente.data
 reserva.telefono_cliente = form.telefono_cliente.data
 reserva.barco = form.barco.data
 if form.fecha_checkin.data:
-reserva.fecha_checkin = datetime.combine(
-form.fecha_checkin.data,
-form.hora_inicio.data or datetime.min.time()
-)
+    reserva.fecha_checkin = datetime.combine(
+        form.fecha_checkin.data,
+        form.hora_inicio.data or datetime.min.time()
+    )
 if form.fecha_checkout.data:
-reserva.fecha_checkout = datetime.combine(
-form.fecha_checkout.data,
-form.hora_finalizacion.data or datetime.min.time()
-)
+    reserva.fecha_checkout = datetime.combine(
+        form.fecha_checkout.data,
+        form.hora_finalizacion.data or datetime.min.time()
+    )
 reserva.hora_inicio = form.hora_inicio.data or reserva.hora_inicio
 reserva.hora_finalizacion = form.hora_finalizacion.data or reserva.hora_finalizacion
 reserva.precio_total = form.precio_total.data
@@ -143,8 +143,8 @@ reserva.pago_a = form.pago_a.data or 0
 reserva.pago_b = form.pago_b.data or 0
 reserva.apa = form.apa.data or 0
 reserva.codigo_promocional = (
-form.codigo_promocional.data.upper()
-if form.codigo_promocional.data else None
+    form.codigo_promocional.data.upper()
+    if form.codigo_promocional.data else None
 )
 reserva.descuento = reserva.descuento
 reserva.extras = form.extras.data
