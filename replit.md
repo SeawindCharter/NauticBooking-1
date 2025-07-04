@@ -116,7 +116,23 @@ NauticBooking is a Flask-based web application for managing nautical reservation
 
 ## Changelog
 - July 03, 2025. Initial setup
+- July 04, 2025. Fixed reservation editing functionality completely
+- July 04, 2025. Created unique admin profile: Santiago/Santiago123
+- July 04, 2025. Fixed timestamp updates for reservation modifications
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Technical Notes
+
+### Admin Credentials
+- Username: Santiago
+- Password: Santiago123
+- Email: santiago@nauticbooking.com
+
+### System Status
+- Database: ✅ Fully functional
+- Edit functionality: ✅ Working correctly
+- Timestamp updates: ✅ Working correctly
+- Frontend-backend connection: ✅ Verified working

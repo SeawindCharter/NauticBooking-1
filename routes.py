@@ -128,8 +128,11 @@ def edit_reservation(id):
         reserva.email_cliente = form.email_cliente.data
         reserva.telefono_cliente = form.telefono_cliente.data
         reserva.barco = form.barco.data
-        reserva.fecha_checkin = form.fecha_checkin.data
-        reserva.fecha_checkout = form.fecha_checkout.data
+        # Handle datetime conversion carefully
+        if form.fecha_checkin.data:
+            reserva.fecha_checkin = datetime.combine(form.fecha_checkin.data, form.hora_inicio.data or datetime.min.time())
+        if form.fecha_checkout.data:
+            reserva.fecha_checkout = datetime.combine(form.fecha_checkout.data, form.hora_finalizacion.data or datetime.min.time())
         reserva.hora_inicio = form.hora_inicio.data or reserva.hora_inicio
         reserva.hora_finalizacion = form.hora_finalizacion.data or reserva.hora_finalizacion
         reserva.precio_total = form.precio_total.data
@@ -146,10 +149,15 @@ def edit_reservation(id):
         # Explicitly add to session to ensure tracking
         db.session.add(reserva)
         
-        db.session.commit()
-        
-        flash('Reserva actualizada exitosamente', 'success')
-        return redirect(url_for('main.reservations'))
+        try:
+            db.session.commit()
+            print(f"✓ Reserva {reserva.id} actualizada: {reserva.cliente} - {reserva.updated_at}")
+            flash('Reserva actualizada exitosamente', 'success')
+            return redirect(url_for('main.reservations'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"✗ Error actualizando reserva {reserva.id}: {str(e)}")
+            flash(f'Error al actualizar la reserva: {str(e)}', 'error')
     
     return render_template('edit_reservation.html', form=form, reserva=reserva)
 
