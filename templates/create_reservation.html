@@ -3,32 +3,113 @@
 {% block title %}Nueva Reserva - NauticBooking{% endblock %}
 
 {% block content %}
--### Nueva Reserva
--
--{{ form.hidden_tag() }}
--##### Información del Cliente
--... (todo tu código de campos sin <form> ni botón) ...
--  Crear Reserva
-+<h1>Nueva Reserva</h1>
-+
-+<form method="POST" action="{{ url_for('main.create_reservation') }}" novalidate>
-+  {{ form.hidden_tag() }}
-+
-+  <h5>Información del Cliente</h5>
-+  <div class="mb-3">
-+    {{ form.cliente.label(class="form-label") }}
-+    {{ form.cliente(class="form-control" + (" is-invalid" if form.cliente.errors else "")) }}
-+    {% for e in form.cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
-+  </div>
-+  {# … copia aquí TODAS tus secciones de campos, igual que antes … #}
-+
-+  <div class="d-flex justify-content-between mt-4">
-+    <a href="{{ url_for('main.reservations') }}" class="btn btn-secondary">
-+      Cancelar
-+    </a>
-+    <button type="submit" class="btn btn-primary">
-+      Crear Reserva
-+    </button>
-+  </div>
-+</form>
+  <h1>Nueva Reserva</h1>
+
+  <form method="POST" action="{{ url_for('main.create_reservation') }}" novalidate>
+    {{ form.hidden_tag() }}
+
+    <!-- Información del Cliente -->
+    <h5>Información del Cliente</h5>
+    <div class="mb-3">
+      {{ form.cliente.label(class="form-label") }}
+      {{ form.cliente(class="form-control" + (" is-invalid" if form.cliente.errors else "")) }}
+      {% for e in form.cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.email_cliente.label(class="form-label") }}
+      {{ form.email_cliente(class="form-control" + (" is-invalid" if form.email_cliente.errors else "")) }}
+      {% for e in form.email_cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.telefono_cliente.label(class="form-label") }}
+      {{ form.telefono_cliente(class="form-control" + (" is-invalid" if form.telefono_cliente.errors else "")) }}
+      {% for e in form.telefono_cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <!-- Detalles de Reserva -->
+    <h5>Detalles de Reserva</h5>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.barco.label(class="form-label") }}
+        {{ form.barco(class="form-control" + (" is-invalid" if form.barco.errors else "")) }}
+        {% for e in form.barco.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-3 mb-3">
+        {{ form.fecha_checkin.label(class="form-label") }}
+        {{ form.fecha_checkin(class="form-control" + (" is-invalid" if form.fecha_checkin.errors else "")) }}
+        {% for e in form.fecha_checkin.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-3 mb-3">
+        {{ form.fecha_checkout.label(class="form-label") }}
+        {{ form.fecha_checkout(class="form-control" + (" is-invalid" if form.fecha_checkout.errors else "")) }}
+        {% for e in form.fecha_checkout.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Datos de Pago -->
+    <h5>Datos de Pago</h5>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.precio_total.label(class="form-label") }}
+        {{ form.precio_total(class="form-control" + (" is-invalid" if form.precio_total.errors else "")) }}
+        {% for e in form.precio_total.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.pago_a.label(class="form-label") }}
+        {{ form.pago_a(class="form-control" + (" is-invalid" if form.pago_a.errors else "")) }}
+        {% for e in form.pago_a.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.pago_b.label(class="form-label") }}
+        {{ form.pago_b(class="form-control" + (" is-invalid" if form.pago_b.errors else "")) }}
+        {% for e in form.pago_b.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <!-- APA y Promoción -->
+    <h5>APA y Promociones</h5>
+    <div class="mb-3">
+      {{ form.apa.label(class="form-label") }}
+      {{ form.apa(class="form-control" + (" is-invalid" if form.apa.errors else "")) }}
+      {% for e in form.apa.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.codigo_promocional.label(class="form-label") }}
+      {{ form.codigo_promocional(class="form-control" + (" is-invalid" if form.codigo_promocional.errors else "")) }}
+      {% for e in form.codigo_promocional.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.descuento.label(class="form-label") }}
+      {{ form.descuento(class="form-control" + (" is-invalid" if form.descuento.errors else "")) }}
+      {% for e in form.descuento.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <!-- Extras -->
+    <h5>Extras</h5>
+    <div class="mb-3">
+      {{ form.extras.label(class="form-label") }}
+      {{ form.extras(class="form-control" + (" is-invalid" if form.extras.errors else ""), rows="2") }}
+      {% for e in form.extras.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.extras_facturados.label(class="form-label") }}
+      {{ form.extras_facturados(class="form-control" + (" is-invalid" if form.extras_facturados.errors else "")) }}
+      {% for e in form.extras_facturados.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <!-- Observaciones -->
+    <div class="mb-3">
+      {{ form.observaciones.label(class="form-label") }}
+      {{ form.observaciones(class="form-control" + (" is-invalid" if form.observaciones.errors else ""), rows="3") }}
+      {% for e in form.observaciones.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('main.reservations') }}" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Crear Reserva</button>
+    </div>
+  </form>
 {% endblock %}
