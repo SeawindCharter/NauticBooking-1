@@ -27,6 +27,12 @@ login_manager.init_app(app)
 login_manager.login_view = 'admin.login'
 login_manager.login_message = 'Por favor, inicie sesión para acceder a esta página.'
 
+# User loader function for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    from models import Admin
+    return Admin.query.get(int(user_id))
+
 # Import y registro de blueprints
 from routes import main_bp
 from admin_routes import admin_bp
