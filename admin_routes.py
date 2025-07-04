@@ -17,13 +17,28 @@ def login():
     
     form = LoginForm()
     
-    if form.validate_on_submit():
-        admin = Admin.query.filter_by(username=form.username.data).first()
-        if admin and admin.check_password(form.password.data):
-            login_user(admin, remember=form.remember_me.data)
-            flash('Bienvenido al panel de administración', 'success')
-            return redirect(url_for('admin.dashboard'))
-        flash('Usuario o contraseña incorrectos', 'error')
+    if request.method == 'POST':
+        print(f"=== LOGIN ATTEMPT ===")
+        print(f"Form data: {dict(request.form)}")
+        print(f"Form validate: {form.validate()}")
+        print(f"Form errors: {form.errors}")
+        
+        if form.validate_on_submit():
+            print(f"Form validation passed")
+            admin = Admin.query.filter_by(username=form.username.data).first()
+            print(f"Admin found: {admin is not None}")
+            if admin:
+                pwd_check = admin.check_password(form.password.data)
+                print(f"Password check result: {pwd_check}")
+                if pwd_check:
+                    login_user(admin, remember=form.remember_me.data)
+                    print(f"User logged in successfully")
+                    flash('Bienvenido al panel de administración', 'success')
+                    return redirect(url_for('admin.dashboard'))
+            flash('Usuario o contraseña incorrectos', 'error')
+        else:
+            print(f"Form validation failed")
+            flash('Error en el formulario', 'error')
     
     return render_template('admin/login.html', form=form)
 
