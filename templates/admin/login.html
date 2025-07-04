@@ -57,10 +57,21 @@
 </div>
 
 <script>
+// Force page reload after form submission to prevent cache issues
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     const submitBtn = document.getElementById('loginBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+    
+    // Force redirect after 2 seconds if browser doesn't redirect automatically
+    setTimeout(function() {
+        window.location.href = '/admin/dashboard';
+    }, 2000);
 });
+
+// Clear any browser cache on page load
+if (performance.navigation.type == performance.navigation.TYPE_BACK_FORWARD) {
+    window.location.reload();
+}
 </script>
 {% endblock %}

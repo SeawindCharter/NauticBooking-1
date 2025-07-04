@@ -10,6 +10,10 @@ main_bp = Blueprint('main', __name__)
 def diagnostico():
     return render_template('diagnostico.html')
 
+@main_bp.route('/test')
+def test_simple():
+    return render_template('test_simple.html')
+
 @main_bp.route('/')
 def index():
     # Get recent reservations for the homepage
