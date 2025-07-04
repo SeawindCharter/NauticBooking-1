@@ -52,6 +52,7 @@ def reservations():
                          search_term=search_term,
                          search_type=search_type)
 
+@main_bp.route('/reservation/new', methods=['GET', 'POST'])
 @main_bp.route('/reservation/create', methods=['GET', 'POST'])
 def create_reservation():
     form = ReservaForm()

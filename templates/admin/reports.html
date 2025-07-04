@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes - NauticBooking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-bar me-2"></i>Reportes</h1>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Revenue by Month -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Ingresos por Mes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if monthly_revenue %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Mes</th>
+                                    <th>Reservas</th>
+                                    <th>Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in monthly_revenue %}
+                                <tr>
+                                    <td>{{ row.month }}</td>
+                                    <td>{{ row.reservations }}</td>
+                                    <td>€{{ "%.2f"|format(row.revenue) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay datos de ingresos disponibles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Boats -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-ship me-2"></i>Barcos Más Populares
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if popular_boats %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Barco</th>
+                                    <th>Reservas</th>
+                                    <th>Ingresos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for boat in popular_boats %}
+                                <tr>
+                                    <td>{{ boat.barco }}</td>
+                                    <td>{{ boat.reservations }}</td>
+                                    <td>€{{ "%.2f"|format(boat.revenue) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay datos de barcos disponibles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Status -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-euro-sign me-2"></i>Estado de Pagos
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if payment_status %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Ingresos Totales:</span>
+                                <span class="text-success">€{{ "%.2f"|format(payment_status.total_revenue or 0) }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Total Pagado:</span>
+                                <span class="text-primary">€{{ "%.2f"|format(payment_status.total_paid or 0) }}</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Pendiente:</span>
+                                <span class="text-warning">€{{ "%.2f"|format((payment_status.total_revenue or 0) - (payment_status.total_paid or 0)) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay datos de pagos disponibles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

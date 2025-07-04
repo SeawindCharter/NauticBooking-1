@@ -142,9 +142,9 @@ def promotional_codes():
 def reports():
     # Generate various reports
     
-    # Revenue by month
+    # Revenue by month - PostgreSQL compatible
     monthly_revenue = db.session.query(
-        db.func.strftime('%Y-%m', Reserva.fecha_checkin).label('month'),
+        db.func.to_char(Reserva.fecha_checkin, 'YYYY-MM').label('month'),
         db.func.sum(Reserva.precio_total).label('revenue'),
         db.func.count(Reserva.id).label('reservations')
     ).group_by('month').order_by('month').all()
