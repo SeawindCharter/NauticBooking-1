@@ -1,38 +1,49 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app import db
-from models import Reserva, CodigoPromocional
-from forms import ReservaForm, SearchForm
-from datetime import datetime
+    @main_bp.route('/reservation/new', methods=['GET', 'POST'])
+    @main_bp.route('/reservation/create', methods=['GET', 'POST'])
+    def create_reservation():
+        form = ReservaForm()
 
-main_bp = Blueprint('main', __name__)
+        if form.validate_on_submit():
+            # Check and apply promotional code discount
+            descuento = 0.0
+            if form.codigo_promocional.data:
+                codigo = CodigoPromocional.query.filter_by(
+                    codigo=form.codigo_promocional.data.upper()
+                ).first()
+                if codigo and codigo.is_valid():
+                    descuento = codigo.calcular_descuento(form.precio_total.data)
+                    codigo.usos_actuales += 1
+                    db.session.commit()
 
-@main_bp.route('/diagnostico')
-def diagnostico():
-    return render_template('diagnostico.html')
+            reserva = Reserva(
+                cliente=form.cliente.data,
+                email_cliente=form.email_cliente.data,
+                telefono_cliente=form.telefono_cliente.data,
+                barco=form.barco.data,
+                fecha_checkin=form.fecha_checkin.data,
+                fecha_checkout=form.fecha_checkout.data,
+                hora_inicio=form.hora_inicio.data,
+                hora_finalizacion=form.hora_finalizacion.data,
+                precio_total=form.precio_total.data,
+                pago_a=form.pago_a.data or 0,
+                pago_b=form.pago_b.data or 0,
+                apa=form.apa.data or 0,
+                codigo_promocional=(form.codigo_promocional.data.upper()
+                                    if form.codigo_promocional.data else None),
+                descuento=descuento,
+                extras=form.extras.data,
+                extras_facturados=form.extras_facturados.data or 0,
+                observaciones=form.observaciones.data
+            )
 
-@main_bp.route('/test')
-def test_simple():
-    return render_template('test_simple.html')
+            db.session.add(reserva)
+            db.session.commit()
 
-@main_bp.route('/')
-def index():
-    # Get recent reservations for the homepage
-    recent_reservations = Reserva.query.order_by(Reserva.created_at.desc()).limit(5).all()
-    
-    # Calculate statistics
-    total_reservations = Reserva.query.count()
-    total_revenue = db.session.query(db.func.sum(Reserva.precio_total)).scalar() or 0
-    pending_balance = db.session.query(db.func.sum(Reserva.precio_total - Reserva.pago_a - Reserva.pago_b)).scalar() or 0
-    
-    return render_template('index.html', 
-                         recent_reservations=recent_reservations,
-                         total_reservations=total_reservations,
-                         total_revenue=total_revenue,
-                         pending_balance=pending_balance)
+            flash('Reserva creada exitosamente', 'success')
+            return redirect(url_for('main.reservations'))
 
-@main_bp.route('/reservations')
-def reservations():
-    search_form = SearchForm()
+        # Si no es POST o la validación falla, renderizamos el formulario
+        return render_template('create_reservation.html', form=form)
     page = request.args.get('page', 1, type=int)
     per_page = 10
     
