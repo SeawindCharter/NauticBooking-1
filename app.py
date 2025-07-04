@@ -106,9 +106,12 @@ with app.app_context():
         db.session.commit()
         logging.info("Sample reservations created")
 
-# Register blueprints
-from routes import main_bp
-from admin_routes import admin_bp
+# Register blueprints at the end to avoid circular imports
+def register_blueprints():
+    from routes import main_bp
+    from admin_routes import admin_bp
+    
+    app.register_blueprint(main_bp)
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
-app.register_blueprint(main_bp)
-app.register_blueprint(admin_bp, url_prefix='/admin')
+register_blueprints()
