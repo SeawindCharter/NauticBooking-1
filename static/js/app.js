@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Re-enable button after 5 seconds as fallback
                 setTimeout(() => {
                     this.disabled = false;
-                    this.innerHTML = this.getAttribute('data-original-text') || 'Enviar';
+                    this.textContent = this.getAttribute('data-original-text') || 'Enviar';
                 }, 5000);
             }
         });
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Store original button text
     submitButtons.forEach(button => {
-        button.setAttribute('data-original-text', button.innerHTML);
+        button.setAttribute('data-original-text', button.textContent || button.innerText);
     });
     
     // File input validation
