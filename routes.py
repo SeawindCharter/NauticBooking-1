@@ -64,8 +64,16 @@ def reservations():
 @main_bp.route('/reservation/new', methods=['GET', 'POST'])
 @main_bp.route('/reservation/create', methods=['GET', 'POST'])
 def create_reservation():
+    from flask import current_app
+    current_app.logger.debug("→ [create_reservation] Método: %s", request.method)
     form = ReservaForm()
+
+    if form.is_submitted():
+        current_app.logger.debug("   [create_reservation] request.form: %s", dict(request.form))
+        current_app.logger.debug("   [create_reservation] form.errors previos: %s", form.errors)
+
     if form.validate_on_submit():
+        current_app.logger.debug("   [create_reservation] Form validado, creando Reserva…")
         # Aplicar descuento promocional si corresponde
         descuento = 0.0
         if form.codigo_promocional.data:
@@ -76,6 +84,7 @@ def create_reservation():
                 descuento = codigo.calcular_descuento(form.precio_total.data)
                 codigo.usos_actuales += 1
                 db.session.commit()
+                current_app.logger.debug("   [create_reservation] Descuento aplicado: %s", descuento)
 
         # Crear la reserva
         reserva = Reserva(
@@ -102,6 +111,7 @@ def create_reservation():
         )
         db.session.add(reserva)
         db.session.commit()
+        current_app.logger.debug("   [create_reservation] ✓ Reserva guardada con ID %s", reserva.id)
 
         flash('Reserva creada exitosamente', 'success')
         return redirect(url_for('main.reservations'))

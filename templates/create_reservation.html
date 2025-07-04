@@ -1,57 +1,166 @@
-@main_bp.route('/reservation/new', methods=['GET', 'POST'])
-@main_bp.route('/reservation/create', methods=['GET', 'POST'])
-def create_reservation():
-    current_app.logger.debug("→ [create_reservation] Método: %s", request.method)
-    form = ReservaForm()
+{% extends "base.html" %}
 
-    if form.is_submitted():
-        current_app.logger.debug("   [create_reservation] request.form: %s", dict(request.form))
-        current_app.logger.debug("   [create_reservation] form.errors previos: %s", form.errors)
+{% block title %}Nueva Reserva - NauticBooking{% endblock %}
 
-    if form.validate_on_submit():
-        current_app.logger.debug("   [create_reservation] Form validado, creando Reserva…")
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nueva Reserva
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Cliente Info -->
+                    <h5>Información del Cliente</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.cliente.label(class="form-label") }}
+                                {{ form.cliente(class="form-control" + (" is-invalid" if form.cliente.errors else "")) }}
+                                {% for e in form.cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.email_cliente.label(class="form-label") }}
+                                {{ form.email_cliente(class="form-control" + (" is-invalid" if form.email_cliente.errors else "")) }}
+                                {% for e in form.email_cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.telefono_cliente.label(class="form-label") }}
+                        {{ form.telefono_cliente(class="form-control" + (" is-invalid" if form.telefono_cliente.errors else "")) }}
+                        {% for e in form.telefono_cliente.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
 
-        # Aplicar descuento promocional si corresponde
-        descuento = 0.0
-        if form.codigo_promocional.data:
-            codigo = CodigoPromocional.query.filter_by(
-                codigo=form.codigo_promocional.data.upper()
-            ).first()
-            if codigo and codigo.is_valid():
-                descuento = codigo.calcular_descuento(form.precio_total.data)
-                codigo.usos_actuales += 1
-                db.session.commit()
-                current_app.logger.debug("   [create_reservation] Descuento aplicado: %s", descuento)
+                    <!-- Reserva Info -->
+                    <h5>Detalles de la Reserva</h5>
+                    <div class="mb-3">
+                        {{ form.barco.label(class="form-label") }}
+                        {{ form.barco(class="form-select" + (" is-invalid" if form.barco.errors else "")) }}
+                        {% for e in form.barco.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                {{ form.fecha_checkin.label(class="form-label") }}
+                                {{ form.fecha_checkin(class="form-control" + (" is-invalid" if form.fecha_checkin.errors else "")) }}
+                                {% for e in form.fecha_checkin.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                {{ form.fecha_checkout.label(class="form-label") }}
+                                {{ form.fecha_checkout(class="form-control" + (" is-invalid" if form.fecha_checkout.errors else "")) }}
+                                {% for e in form.fecha_checkout.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                {{ form.hora_inicio.label(class="form-label") }}
+                                {{ form.hora_inicio(class="form-control" + (" is-invalid" if form.hora_inicio.errors else "")) }}
+                                {% for e in form.hora_inicio.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                {{ form.hora_finalizacion.label(class="form-label") }}
+                                {{ form.hora_finalizacion(class="form-control" + (" is-invalid" if form.hora_finalizacion.errors else "")) }}
+                                {% for e in form.hora_finalizacion.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-        # Crear la reserva
-        reserva = Reserva(
-            cliente=form.cliente.data,
-            email_cliente=form.email_cliente.data,
-            telefono_cliente=form.telefono_cliente.data,
-            barco=form.barco.data,
-            fecha_checkin=form.fecha_checkin.data,
-            fecha_checkout=form.fecha_checkout.data,
-            hora_inicio=form.hora_inicio.data,
-            hora_finalizacion=form.hora_finalizacion.data,
-            precio_total=form.precio_total.data,
-            pago_a=form.pago_a.data or 0,
-            pago_b=form.pago_b.data or 0,
-            apa=form.apa.data or 0,
-            codigo_promocional=(
-                form.codigo_promocional.data.upper()
-                if form.codigo_promocional.data else None
-            ),
-            descuento=descuento,
-            extras=form.extras.data,
-            extras_facturados=form.extras_facturados.data or 0,
-            observaciones=form.observaciones.data
-        )
-        db.session.add(reserva)
-        db.session.commit()
-        current_app.logger.debug("   [create_reservation] ✓ Reserva guardada con ID %s", reserva.id)
+                    <!-- Precios -->
+                    <h5>Información de Precios</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.precio_total.label(class="form-label") }}
+                                {{ form.precio_total(class="form-control" + (" is-invalid" if form.precio_total.errors else ""), step="0.01") }}
+                                {% for e in form.precio_total.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.pago_a.label(class="form-label") }}
+                                {{ form.pago_a(class="form-control" + (" is-invalid" if form.pago_a.errors else ""), step="0.01") }}
+                                {% for e in form.pago_a.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.pago_b.label(class="form-label") }}
+                                {{ form.pago_b(class="form-control" + (" is-invalid" if form.pago_b.errors else ""), step="0.01") }}
+                                {% for e in form.pago_b.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.apa.label(class="form-label") }}
+                                {{ form.apa(class="form-control" + (" is-invalid" if form.apa.errors else ""), step="0.01") }}
+                                {% for e in form.apa.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.codigo_promocional.label(class="form-label") }}
+                                {{ form.codigo_promocional(class="form-control" + (" is-invalid" if form.codigo_promocional.errors else "")) }}
+                                {% for e in form.codigo_promocional.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Descuento se calcula automáticamente basado en el código promocional -->
 
-        flash('Reserva creada exitosamente', 'success')
-        return redirect(url_for('main.reservations'))
+                    <!-- Extras -->
+                    <h5>Extras</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                {{ form.extras.label(class="form-label") }}
+                                {{ form.extras(class="form-control" + (" is-invalid" if form.extras.errors else ""), rows="3") }}
+                                {% for e in form.extras.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.extras_facturados.label(class="form-label") }}
+                                {{ form.extras_facturados(class="form-control" + (" is-invalid" if form.extras_facturados.errors else ""), step="0.01") }}
+                                {% for e in form.extras_facturados.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
 
-    # Si GET o validación falla, renderizar formulario
-    return render_template('create_reservation.html', form=form)
+                    <!-- Observaciones -->
+                    <div class="mb-3">
+                        {{ form.observaciones.label(class="form-label") }}
+                        {{ form.observaciones(class="form-control" + (" is-invalid" if form.observaciones.errors else ""), rows="3") }}
+                        {% for e in form.observaciones.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.reservations') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Crear Reserva
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
