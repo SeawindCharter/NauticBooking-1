@@ -50,14 +50,13 @@ with app.app_context():
     # Create all tables
     db.create_all()
     
-    # Create default admin user if not exists
-    admin = models.Admin.query.filter_by(username='admin').first()
-    if not admin:
-        admin = models.Admin(username='admin', email='admin@nauticbooking.com')
-        admin.set_password('admin123')
+    # Create Santiago admin user if no admin exists
+    if models.Admin.query.count() == 0:
+        admin = models.Admin(username='Santiago', email='santiago@nauticbooking.com')
+        admin.set_password('Santiago123')
         db.session.add(admin)
         db.session.commit()
-        logging.info("Default admin user created: admin/admin123")
+        logging.info("Santiago admin user created: Santiago/Santiago123")
     
     # Add sample reservations if none exist
     if models.Reserva.query.count() == 0:
