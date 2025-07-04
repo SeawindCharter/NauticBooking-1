@@ -51,11 +51,6 @@
                     </small>
                 </div>
                 
-                <div class="text-center mt-2">
-                    <a href="/admin/dashboard" class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-tachometer-alt me-2"></i>Acceso Directo al Dashboard
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -66,25 +61,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const submitBtn = document.getElementById('loginBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
-    
-    // Simple immediate redirect after allowing form submission
-    setTimeout(function() {
-        window.location.replace('/admin/dashboard');
-    }, 100);
-});
-
-// Auto-submit form when page loads (since credentials are pre-filled)
-window.addEventListener('load', function() {
-    const form = document.getElementById('loginForm');
-    const username = document.getElementById('username');
-    const password = document.getElementById('password');
-    
-    // Auto-submit if fields are filled
-    if (username && password && username.value && password.value) {
-        setTimeout(function() {
-            form.submit();
-        }, 500);
-    }
 });
 </script>
 {% endblock %}
