@@ -1,29 +1,14 @@
-#!/usr/bin/env python3
-"""
-Setup script to create a clean admin profile
-"""
-
-from app import app, db
+# setup_admin.py
+from app import db
 from models import Admin
 
-def setup_admin():
-    with app.app_context():
-        # Remove all existing admin users
-        Admin.query.delete()
-        
-        # Create Santiago admin user
-        admin = Admin(
-            username='Santiago',
-            email='santiago@nauticbooking.com'
-        )
-        admin.set_password('Santiago123')
-        
-        db.session.add(admin)
-        db.session.commit()
-        
-        print("✓ Admin user 'Santiago' created successfully")
-        print("✓ Password: Santiago123")
-        print("✓ Email: santiago@nauticbooking.com")
+# Borra todos los admins existentes
+Admin.query.delete()
+db.session.commit()
 
-if __name__ == "__main__":
-    setup_admin()
+# Crea sólo a Santiago
+admin = Admin(username='Santiago', email='santiago@nauticbooking.com')
+admin.set_password('Santiago123')
+db.session.add(admin)
+db.session.commit()
+print("✓ Admin 'Santiago' creado con contraseña Santiago123")

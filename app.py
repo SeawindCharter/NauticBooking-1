@@ -57,6 +57,7 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
         logging.info("Santiago admin user created: Santiago/Santiago123")
+
     
     # Add sample reservations if none exist
     if models.Reserva.query.count() == 0:
