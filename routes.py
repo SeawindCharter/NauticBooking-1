@@ -6,6 +6,10 @@ from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
+@main_bp.route('/diagnostico')
+def diagnostico():
+    return render_template('diagnostico.html')
+
 @main_bp.route('/')
 def index():
     # Get recent reservations for the homepage
@@ -113,6 +117,14 @@ def edit_reservation(id):
         form = ReservaForm()
     
     if form.validate_on_submit():
+        print(f"=== UPDATING RESERVATION {id} ===")
+        print(f"Old cliente: {reserva.cliente}")
+        print(f"New cliente: {form.cliente.data}")
+        print(f"Form data: {dict(request.form)}")
+        
+        # Store old values for comparison
+        old_cliente = reserva.cliente
+        
         # Handle promotional code changes
         descuento = reserva.descuento
         if form.codigo_promocional.data and form.codigo_promocional.data != reserva.codigo_promocional:
@@ -147,18 +159,32 @@ def edit_reservation(id):
         reserva.observaciones = form.observaciones.data
         reserva.updated_at = datetime.utcnow()
         
+        print(f"Updated cliente in memory: {reserva.cliente}")
+        
         # Explicitly add to session to ensure tracking
         db.session.add(reserva)
         
         try:
             db.session.commit()
-            print(f"✓ Reserva {reserva.id} actualizada: {reserva.cliente} - {reserva.updated_at}")
+            print(f"✓ COMMIT SUCCESSFUL: Reserva {reserva.id} actualizada")
+            print(f"✓ Cliente changed from '{old_cliente}' to '{reserva.cliente}'")
+            print(f"✓ Updated at: {reserva.updated_at}")
+            
+            # Verify the change was actually saved
+            saved_reserva = Reserva.query.get(reserva.id)
+            print(f"✓ Verification - Saved cliente: {saved_reserva.cliente}")
+            
             flash('Reserva actualizada exitosamente', 'success')
             return redirect(url_for('main.reservations'))
         except Exception as e:
             db.session.rollback()
             print(f"✗ Error actualizando reserva {reserva.id}: {str(e)}")
             flash(f'Error al actualizar la reserva: {str(e)}', 'error')
+    else:
+        if request.method == 'POST':
+            print(f"=== FORM VALIDATION FAILED ===")
+            print(f"Form errors: {form.errors}")
+            print(f"Form data: {dict(request.form)}")
     
     return render_template('edit_reservation.html', form=form, reserva=reserva)
 

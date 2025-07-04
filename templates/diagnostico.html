@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Diagnóstico del Sistema - NauticBooking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1><i class="fas fa-stethoscope me-2"></i>Diagnóstico del Sistema</h1>
+    
+    <div class="alert alert-info">
+        <strong>Estado del Sistema:</strong> Todos los tests backend pasan al 100%. 
+        Este diagnóstico identifica problemas del lado del navegador.
+    </div>
+    
+    <div class="row g-4">
+        <!-- JavaScript Test -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test JavaScript</h5>
+                </div>
+                <div class="card-body">
+                    <div id="js-status" class="alert alert-danger">
+                        ❌ JavaScript NO está funcionando
+                    </div>
+                    <button class="btn btn-primary" onclick="testJS()">Probar JavaScript</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cookies Test -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Cookies</h5>
+                </div>
+                <div class="card-body">
+                    <div id="cookie-status" class="alert alert-warning">
+                        ⏳ Verificando cookies...
+                    </div>
+                    <button class="btn btn-secondary" onclick="testCookies()">Probar Cookies</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Test -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Formulario Simple</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/admin/dashboard" id="test-form">
+                        <input type="hidden" name="test" value="1">
+                        <button type="submit" class="btn btn-success">Probar Envío Directo</button>
+                    </form>
+                    <div id="form-status" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cache Test -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Test Cache</h5>
+                </div>
+                <div class="card-body">
+                    <div id="cache-status" class="alert alert-secondary">
+                        Tiempo actual: <span id="current-time"></span>
+                    </div>
+                    <button class="btn btn-warning" onclick="clearCache()">Limpiar Cache</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Direct Access Links -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Acceso Directo (sin JavaScript)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <a href="/admin/dashboard" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/reservations" class="btn btn-outline-success w-100">
+                                <i class="fas fa-list me-2"></i>Reservas
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/reservation/new" class="btn btn-outline-info w-100">
+                                <i class="fas fa-plus me-2"></i>Nueva Reserva
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/reservation/2/edit" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-edit me-2"></i>Editar Santiago
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-test JavaScript on page load
+window.addEventListener('load', function() {
+    // Test JavaScript
+    testJS();
+    
+    // Test cookies
+    testCookies();
+    
+    // Update time every second
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Monitor form submissions
+    document.getElementById('test-form').addEventListener('submit', function(e) {
+        document.getElementById('form-status').innerHTML = 
+            '<div class="alert alert-info">Formulario enviado... verificando respuesta</div>';
+    });
+});
+
+function testJS() {
+    const status = document.getElementById('js-status');
+    status.className = 'alert alert-success';
+    status.innerHTML = '✅ JavaScript está funcionando correctamente';
+}
+
+function testCookies() {
+    // Set a test cookie
+    document.cookie = "test=funcionando; path=/";
+    
+    // Check if cookie was set
+    const cookies = document.cookie;
+    const status = document.getElementById('cookie-status');
+    
+    if (cookies.includes('test=funcionando')) {
+        status.className = 'alert alert-success';
+        status.innerHTML = '✅ Cookies están funcionando';
+    } else {
+        status.className = 'alert alert-danger';
+        status.innerHTML = '❌ Cookies están bloqueadas';
+    }
+}
+
+function updateTime() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleTimeString();
+}
+
+function clearCache() {
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            for (let name of names) caches.delete(name);
+        });
+    }
+    
+    // Clear localStorage
+    if (typeof(Storage) !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+    }
+    
+    alert('Cache limpiado. Presiona Ctrl+F5 para refrescar completamente la página.');
+}
+</script>
+{% endblock %}
