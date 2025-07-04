@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from app import db
 from models import Reserva, CodigoPromocional
 from forms import ReservaForm, SearchForm
