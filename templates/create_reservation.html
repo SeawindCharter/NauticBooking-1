@@ -78,11 +78,7 @@
       {{ form.codigo_promocional(class="form-control" + (" is-invalid" if form.codigo_promocional.errors else "")) }}
       {% for e in form.codigo_promocional.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
     </div>
-    <div class="mb-3">
-      {{ form.descuento.label(class="form-label") }}
-      {{ form.descuento(class="form-control" + (" is-invalid" if form.descuento.errors else "")) }}
-      {% for e in form.descuento.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
-    </div>
+    <!-- Descuento se calcula automáticamente basado en el código promocional -->
 
     <!-- Extras -->
     <h5>Extras</h5>
