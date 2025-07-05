@@ -74,4 +74,21 @@ if (performance.navigation.type == performance.navigation.TYPE_BACK_FORWARD) {
     window.location.reload();
 }
 </script>
+{% extends "base.html" %}
+
+{% block title %}Login Admin – NauticBooking{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <!-- … todo tu HTML de formulario … -->
+</div>
+
+<script>
+  // tu pequeño script inline si lo tenías
+</script>
+{% endblock %}
+
+{# AQUÍ es donde inyectas SOLO en esta plantilla tu app.js #}
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}
